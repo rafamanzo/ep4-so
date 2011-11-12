@@ -117,12 +117,21 @@ sys_link(void)
 {
   char name[DIRSIZ], *new, *old;
   struct inode *dp, *ip;
+  int symlink;
 
   if(argstr(0, &old) < 0 || argstr(1, &new) < 0)
     return -1;
+  if(argint(2, &symlink) >= 0){
+    symlink=1;
+  }
+    
+
+  // TODO: Remover estas duas linhas inseridas para evitar warning
+  if(symlink)
+    symlink = 1;
+
   if((ip = namei(old)) == 0)
     return -1;
-
   begin_trans();
 
   ilock(ip);
