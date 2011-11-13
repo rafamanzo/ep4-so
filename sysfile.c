@@ -116,19 +116,18 @@ int
 sys_link(void)
 {
   char name[DIRSIZ], *new, *old;
-  struct inode *dp, *ip;
-  int symlink;
+  struct inode *dp, *ip, *slp;
+  int symlink, n;
+  uint off;
+
+  slp = 0;
+  n = 0;
 
   if(argstr(0, &old) < 0 || argstr(1, &new) < 0)
     return -1;
   if(argint(2, &symlink) >= 0){
     symlink=1;
   }
-    
-
-  // TODO: Remover estas duas linhas inseridas para evitar warning
-  if(symlink)
-    symlink = 1;
 
   if((ip = namei(old)) == 0)
     return -1;
@@ -148,7 +147,28 @@ sys_link(void)
   if((dp = nameiparent(new, name)) == 0)
     goto bad;
   ilock(dp);
-  if(dp->dev != ip->dev || dirlink(dp, name, ip->inum) < 0){
+
+  
+
+  if(symlink || slp || n){
+    if(dirlookup(dp, new, &off) != 0)
+      goto bad;
+
+    for(n = 0; new[n]; n++)
+      ;
+
+    if((n = 0 || n > BSIZE)){
+      goto bad;
+    }else{
+      slp = ialloc(ip->dev, T_SYMLINK);
+      ilock(slp);
+      writei(slp, new, 0, n);
+      iunlock(slp);
+
+      if(dirlink(dp, name, slp->inum) < 0)
+        goto bad;
+    } 
+  }else if(dp->dev != ip->dev || dirlink(dp, name, ip->inum) < 0){
     iunlockput(dp);
     goto bad;
   }
