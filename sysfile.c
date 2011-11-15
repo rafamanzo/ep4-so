@@ -139,7 +139,6 @@ sys_link(void)
     commit_trans();
     return -1;
   }
-
   ip->nlink++;
   iupdate(ip);
   iunlock(ip);
@@ -148,21 +147,18 @@ sys_link(void)
     goto bad;
   ilock(dp);
 
-  
-
   if(symlink || slp || n){
     if(dirlookup(dp, new, &off) != 0)
       goto bad;
 
-    for(n = 0; new[n]; n++)
-      ;
+    for(n = 0; old[n]; n++);
 
     if((n = 0 || n > BSIZE)){
       goto bad;
     }else{
       slp = ialloc(ip->dev, T_SYMLINK);
       ilock(slp);
-      writei(slp, new, 0, n);
+			writei(slp, old, 0, DIRSIZ); /*Alterar tamanho*/
       iunlock(slp);
 
       if(dirlink(dp, name, slp->inum) < 0)
@@ -187,6 +183,7 @@ bad:
   commit_trans();
   return -1;
 }
+
 
 // Is the directory dp empty except for "." and ".." ?
 static int
