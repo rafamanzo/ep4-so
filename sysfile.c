@@ -323,12 +323,17 @@ sys_open(void)
       return -1;
     ilock(ip);
 		/* Abrindo um SYMLINK para pegar o endereço do arquivo apontado */  
-    if(ip->type == T_SYMLINK && omode == O_FOLLOW){
+    if(ip->type == T_SYMLINK && omode != O_NOFOLLOW){
 			readi(ip, (char*)path, 0, ip->size);
-			omode = O_FOLLOW;
+			if( strlen(path) > ip->size)
+				path[ip->size] = '\0';
+			/*omode = O_RDONLY;*/
       return sys_open();
 		}
-		 /* -- */
+		/* Abrindo o arquivo SYMLINK */  
+		if( ip->type == T_SYMLINK && && omode == O_NOFOLLOW){
+			omode = O_RDONLY;
+		}
     if(ip->type == T_DIR && omode != O_RDONLY){
       iunlockput(ip);
       return -1;
