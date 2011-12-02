@@ -331,7 +331,7 @@ sys_open(void)
       return sys_open();
 		}
 		/* Abrindo o arquivo SYMLINK */  
-		if( ip->type == T_SYMLINK && && omode == O_NOFOLLOW){
+		if( ip->type == T_SYMLINK && omode == O_NOFOLLOW){
 			omode = O_RDONLY;
 		}
     if(ip->type == T_DIR && omode != O_RDONLY){
