@@ -51,12 +51,6 @@ ls(char *path)
       printf(1, "ls: path too long\n");
       break;
     }
-	case T_SYMLINK:
-		/*read(fd, buf, sizeof(buf));*/
-		/*printf(1, "%s %d %d %d -> %s\n", fmtname(path), st.type, st.ino, st.size, buf  );*/
-		printf(1, "%s %d %d %d\n", fmtname(path), st.type, st.ino, st.size);
-		/*break;*/
-
     strcpy(buf, path);
     p = buf+strlen(buf);
     *p++ = '/';
@@ -65,11 +59,16 @@ ls(char *path)
         continue;
       memmove(p, de.name, DIRSIZ);
       p[DIRSIZ] = 0;
-      if(stat(buf, &st) < 0){
+      if(stat(buf, &st) < 0){                    
         printf(1, "ls: cannot stat %s\n", buf);
         continue;
       }
-      printf(1, "%s %d %d %d\n", fmtname(buf), st.type, st.ino, st.size);
+      if(st.type == T_SYMLINK){
+        /*link = open(p, O_NOFOLLOW);*/
+        printf(1, "%s %d %d %d --> %s\n", fmtname(buf), st.type, st.ino, st.size, "macaco");
+      }else{
+        printf(1, "%s %d %d %d\n", fmtname(buf), st.type, st.ino, st.size);
+      }
     }
     break;
   }
