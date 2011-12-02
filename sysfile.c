@@ -158,7 +158,7 @@ sys_link(void)
     }else{
       slp = ialloc(ip->dev, T_SYMLINK);
       ilock(slp);
-			writei(slp, old, 0, DIRSIZ); /*Alterar tamanho*/
+			writei(slp, old, 0, strlen(old));
       iunlock(slp);
 
       if(dirlink(dp, name, slp->inum) < 0)
@@ -305,7 +305,7 @@ create(char *path, short type, short major, short minor)
 int
 sys_open(void)
 {
-  char *path;
+  char *path, dst[MAXARG];
   int fd, omode;
   struct file *f;
   struct inode *ip;
@@ -322,6 +322,15 @@ sys_open(void)
     if((ip = namei(path)) == 0)
       return -1;
     ilock(ip);
+		/* Abrindo um SYMLINK para pegar o endereço do arquivo apontado */  
+    if(ip->type == T_SYMLINK && omode != O_NOFOLLOW){
+			readi(ip, (char*)dst, 0, ip->size);
+			cprintf("SYS_OPEN dst= %s\n",dst);
+
+				/* Falta chamar sys-open para abrir o arquivo apontado */
+      /*return -1;*//*sys_open(dst,O_FOLLOW);*/
+		}
+		 /* -- */
     if(ip->type == T_DIR && omode != O_RDONLY){
       iunlockput(ip);
       return -1;
