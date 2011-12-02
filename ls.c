@@ -51,6 +51,12 @@ ls(char *path)
       printf(1, "ls: path too long\n");
       break;
     }
+	case T_SYMLINK:
+		/*read(fd, buf, sizeof(buf));*/
+		/*printf(1, "%s %d %d %d -> %s\n", fmtname(path), st.type, st.ino, st.size, buf  );*/
+		printf(1, "%s %d %d %d\n", fmtname(path), st.type, st.ino, st.size);
+		/*break;*/
+
     strcpy(buf, path);
     p = buf+strlen(buf);
     *p++ = '/';

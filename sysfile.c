@@ -305,7 +305,7 @@ create(char *path, short type, short major, short minor)
 int
 sys_open(void)
 {
-  char *path, dst[MAXARG];
+  char *path;
   int fd, omode;
   struct file *f;
   struct inode *ip;
@@ -323,12 +323,10 @@ sys_open(void)
       return -1;
     ilock(ip);
 		/* Abrindo um SYMLINK para pegar o endereço do arquivo apontado */  
-    if(ip->type == T_SYMLINK && omode != O_NOFOLLOW){
-			readi(ip, (char*)dst, 0, ip->size);
-			cprintf("SYS_OPEN dst= %s\n",dst);
-
-				/* Falta chamar sys-open para abrir o arquivo apontado */
-      /*return -1;*//*sys_open(dst,O_FOLLOW);*/
+    if(ip->type == T_SYMLINK && omode == O_FOLLOW){
+			readi(ip, (char*)path, 0, ip->size);
+			omode = O_FOLLOW;
+      return sys_open();
 		}
 		 /* -- */
     if(ip->type == T_DIR && omode != O_RDONLY){
