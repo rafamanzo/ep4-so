@@ -64,8 +64,16 @@ ls(char *path)
         continue;
       }
       if(st.type == T_SYMLINK){
-        /*link = open(p, O_NOFOLLOW);*/
-        printf(1, "%s %d %d %d --> %s\n", fmtname(buf), st.type, st.ino, st.size, "macaco");
+        int link = open(p, 3);
+        char name[512];
+        int size = read(link, &name, 511);
+        name[size] = 0; 
+        if(link < 0){
+          printf(2, "ls: cannot open %s\n", p);
+          break;
+        }
+        printf(1, "%s %d %d %d --> %s\n", fmtname(buf), st.type, st.ino, st.size, name);
+        close(link);
       }else{
         printf(1, "%s %d %d %d\n", fmtname(buf), st.type, st.ino, st.size);
       }
