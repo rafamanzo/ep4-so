@@ -123,18 +123,15 @@ sys_link(void)
   slp = 0;
   n = 0;
 
-  if(argstr(0, &old) < 0 || argstr(1, &new) < 0)
+  if(argstr(0, &old) < 0 || argstr(1, &new) < 0 || argint(2, &symlink) < 0)
     return -1;
-  if(argint(2, &symlink) >= 0){
-    symlink=1;
-  }
 
   if((ip = namei(old)) == 0)
     return -1;
   begin_trans();
 
   ilock(ip);
-  if(ip->type == T_DIR){
+  if(ip->type == T_DIR && !symlink){
     iunlockput(ip);
     commit_trans();
     return -1;
