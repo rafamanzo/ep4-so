@@ -14,6 +14,7 @@
 #include "file.h"
 #include "fcntl.h"
 
+int links = 0;
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
 static int
@@ -327,9 +328,17 @@ sys_open(void)
 			readi(ip, (char*)path, 0, ip->size);
 			if( strlen(path) > ip->size)
 				path[ip->size] = '\0';
+
+			links++;	
+			if( links > 10 ){
+				cprintf("Error: symbolic links cycle\n");
+				return -1;
+			}
       return sys_open();
 		}
-
+		if( links > 0){
+			links = 0;
+		}
     if(ip->type == T_DIR && omode != O_RDONLY){
 			if(omode != O_NOFOLLOW){
       	iunlockput(ip);
