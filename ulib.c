@@ -68,12 +68,12 @@ gets(char *buf, int max)
 }
 
 int
-stat(char *n, struct stat *st)
+stat(char *n, struct stat *st, int omode)
 {
   int fd;
   int r;
 
-  fd = open(n, O_RDONLY);
+  fd = open(n, /*O_RDONLY*/omode);
   if(fd < 0)
     return -1;
   r = fstat(fd, st);

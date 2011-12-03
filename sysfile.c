@@ -105,7 +105,6 @@ sys_fstat(void)
 {
   struct file *f;
   struct stat *st;
-  
   if(argfd(0, 0, &f) < 0 || argptr(1, (void*)&st, sizeof(*st)) < 0)
     return -1;
   return filestat(f, st);
@@ -312,6 +311,7 @@ sys_open(void)
 
   if(argstr(0, &path) < 0 || argint(1, &omode) < 0)
     return -1;
+
   if(omode & O_CREATE){
     begin_trans();
     ip = create(path, T_FILE, 0, 0);
@@ -323,7 +323,7 @@ sys_open(void)
       return -1;
     ilock(ip);
 		/* Abrindo um SYMLINK para pegar o endereço do arquivo apontado */  
-    if(ip->type == T_SYMLINK && omode == O_NOFOLLOW){
+    if(ip->type == T_SYMLINK && omode != O_NOFOLLOW){
 			readi(ip, (char*)path, 0, ip->size);
 			if( strlen(path) > ip->size)
 				path[ip->size] = '\0';
@@ -354,7 +354,6 @@ sys_open(void)
   	f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
 	}
 	else{ /* Acho q é aqui. */
-		cprintf("AQUI\n");
   	f->readable = 1;
   	f->writable = 1;
 	}
