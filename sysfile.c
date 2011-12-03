@@ -158,9 +158,10 @@ sys_link(void)
     }else{
       slp = ialloc(ip->dev, T_SYMLINK);
       ilock(slp);
+      slp->nlink++;
+      iupdate(slp);
 			writei(slp, old, 0, strlen(old));
       iunlock(slp);
-
       if(dirlink(dp, name, slp->inum) < 0)
         goto bad;
     } 
