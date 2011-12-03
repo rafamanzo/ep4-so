@@ -323,20 +323,18 @@ sys_open(void)
       return -1;
     ilock(ip);
 		/* Abrindo um SYMLINK para pegar o endereço do arquivo apontado */  
-    if(ip->type == T_SYMLINK && omode != O_NOFOLLOW){
+    if(ip->type == T_SYMLINK && omode == O_NOFOLLOW){
 			readi(ip, (char*)path, 0, ip->size);
 			if( strlen(path) > ip->size)
 				path[ip->size] = '\0';
-			/*omode = O_RDONLY;*/
       return sys_open();
 		}
-		/* Abrindo o arquivo SYMLINK */  
-		if( ip->type == T_SYMLINK && omode == O_NOFOLLOW){
-			omode = O_RDONLY;
-		}
+
     if(ip->type == T_DIR && omode != O_RDONLY){
-      iunlockput(ip);
-      return -1;
+			if(omode != O_NOFOLLOW){
+      	iunlockput(ip);
+      	return -1;
+			}
     }
   }
 
@@ -351,8 +349,15 @@ sys_open(void)
   f->type = FD_INODE;
   f->ip = ip;
   f->off = 0;
-  f->readable = !(omode & O_WRONLY);
-  f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
+	if(omode != O_NOFOLLOW){
+  	f->readable = !(omode & O_WRONLY);
+  	f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
+	}
+	else{ /* Acho q é aqui. */
+		cprintf("AQUI\n");
+  	f->readable = 1;
+  	f->writable = 1;
+	}
   return fd;
 }
 
