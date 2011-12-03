@@ -26,7 +26,7 @@ void
 ls(char *path)
 {
   char buf[512], *p;
-  int fd;
+  int fd, size;
   struct dirent de;
   struct stat st;
   
@@ -66,7 +66,7 @@ ls(char *path)
       if(st.type == T_SYMLINK){
         int link = open(p, 3);
         char name[512];
-        int size = read(link, &name, 511);
+        size = read(link, &name, 511);
         name[size] = 0; 
         if(link < 0){
           printf(2, "ls: cannot open %s\n", p);
@@ -78,6 +78,11 @@ ls(char *path)
         printf(1, "%s %d %d %d\n", fmtname(buf), st.type, st.ino, st.size);
       }
     }
+    break;
+  case T_SYMLINK:
+    size = read(fd, &buf, 511);
+    buf[size] = 0; 
+    printf(1, "%s %d %d %d --> %s\n", fmtname(path), st.type, st.ino, st.size, buf);
     break;
   }
   close(fd);
