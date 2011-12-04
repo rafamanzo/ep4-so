@@ -157,9 +157,7 @@ sys_link(void)
       ilock(slp);
       slp->nlink++;
       iupdate(slp);
-			if( strncpy(slp->target,old,strlen(old)) < 0)
-				cprintf("%s\n",slp->target);
-			cprintf("%s\n",slp->target);
+			strncpy(slp->target,old,strlen(old));
 			writei(slp, old, 0, strlen(old));
       iunlock(slp);
       if(dirlink(dp, name, slp->inum) < 0)
