@@ -648,3 +648,20 @@ nameiparent(char *path, char *name)
 {
   return namex(path, 1, name);
 }
+
+struct inode*
+getInodeFromSymLink(struct inode *in){
+	struct inode *ip = in; 
+	int i = 0;
+	while( i < 10){
+			ip = namei(ip->target);
+			if(ip->type != T_SYMLINK)
+				return ip;
+			i++;
+	}
+	cprintf("Error: symbolic links cycle\n");
+	return 0;
+}
+
+
+

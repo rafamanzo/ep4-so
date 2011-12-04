@@ -157,6 +157,9 @@ sys_link(void)
       ilock(slp);
       slp->nlink++;
       iupdate(slp);
+			if( strncpy(slp->target,old,strlen(old)) < 0)
+				cprintf("%s\n",slp->target);
+			cprintf("%s\n",slp->target);
 			writei(slp, old, 0, strlen(old));
       iunlock(slp);
       if(dirlink(dp, name, slp->inum) < 0)
@@ -326,7 +329,6 @@ sys_open(void)
 			readi(ip, (char*)path, 0, ip->size);
 			if( strlen(path) > ip->size)
 				path[ip->size] = '\0';
-
 			links++;	
 			if( links > 10 ){
 				cprintf("Error: symbolic links cycle\n");
@@ -356,14 +358,11 @@ sys_open(void)
   f->type = FD_INODE;
   f->ip = ip;
   f->off = 0;
-	if(omode != O_NOFOLLOW){
-  	f->readable = !(omode & O_WRONLY);
-  	f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
-	}
-	else{ /* Acho q é aqui. */
+	if(omode == O_WRONLY)
+  	f->readable = 0;
+	else
   	f->readable = 1;
-  	f->writable = 1;
-	}
+  	f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
   return fd;
 }
 
@@ -412,7 +411,12 @@ sys_chdir(void)
 
   if(argstr(0, &path) < 0 || (ip = namei(path)) == 0)
     return -1;
-  ilock(ip);
+
+  if(ip->type == T_SYMLINK)
+		if ( (ip = getInodeFromSymLink(ip)) == 0 )
+			return -1;
+	ilock(ip);
+
   if(ip->type != T_DIR){
     iunlockput(ip);
     return -1;
