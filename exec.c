@@ -6,6 +6,10 @@
 #include "defs.h"
 #include "x86.h"
 #include "elf.h"
+#include "stat.h"
+#include "fs.h"
+#include "file.h"
+
 
 int
 exec(char *path, char **argv)
@@ -20,8 +24,14 @@ exec(char *path, char **argv)
 
   if((ip = namei(path)) == 0)
     return -1;
+
+ if(ip->type == T_SYMLINK)
+	if ( (ip = getInodeFromSymLink(ip)) == 0 )
+		return -1;
+
   ilock(ip);
   pgdir = 0;
+
 
   // Check ELF header
   if(readi(ip, (char*)&elf, 0, sizeof(elf)) < sizeof(elf))

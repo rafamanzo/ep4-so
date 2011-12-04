@@ -362,7 +362,7 @@ sys_open(void)
   	f->readable = 0;
 	else
   	f->readable = 1;
-  	f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
+  f->writable = (omode & O_WRONLY) || (omode & O_RDWR);
   return fd;
 }
 
